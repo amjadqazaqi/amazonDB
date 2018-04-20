@@ -12,13 +12,7 @@ var connection = mysql.createConnection({
     database: 'bamazon'
 
 });
-var connection2 = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '079978285_Amjd',
-    database: 'bamazon'
 
-});
 
 choice = process.argv[2];
 search_item = process.argv[3];
@@ -126,14 +120,44 @@ function salepoint() {
 
             var managchioce = result.choice;
             if (managchioce === 'update') {
+                var availableq = 0;
 
                 prompt.start();
                 prompt.get(['ItemName', 'Quantity'], function (err, result) {
+                    if (err) { return onErr(err); }
 
-                    doit(2, result.ItemName, result.Quantity)
+                    var frmuseritm = result.ItemName
+                    var frmuserqu = parseInt(result.Quantity)
 
 
+
+                    connection.connect((error) => {
+                        if (error) throw error
+                        // console.log('connected as ', connection.threadId)
+                        var sqlquery = "select * from products where product_name = " + "'" + frmuseritm + "'";
+                        connection.query(sqlquery, (error, response) => {
+                            if (error) throw error
+
+                            availableq = response[0].stock_quantity;
+                            unitprice = response[0].price;
+
+                           
+                                var orderquery = " update products set stock_quantity =" + (availableq + frmuserqu) + " where product_name = '" + frmuseritm + "';"
+                                connection.query(orderquery, (error, response) => {
+                                    if (error) throw error
+                                    
+                                    console.log("the quantity of product :" + frmuseritm  +" updated ")
+
+                                })
+                                connection.end()
+
+                            
+
+                        })
+                    })
                 })
+
+
 
             }
             if (managchioce === 'low') {
@@ -161,20 +185,7 @@ function salepoint() {
         })
 
     }
-    function datasetter(mydata) {
-        connection2.connect((error) => {
-            if (error) throw error
-
-            connection2.query(mydata, (error, response) => {
-                if (error) throw error
-                console.log("the product Quantity Changed")
-
-            })
-
-            connection2.end()
-
-        })
-    }
+   
 
 
     function doit(choice1, querty0, added) {
@@ -198,43 +209,21 @@ function salepoint() {
 
 
         }
-        if (choice1 === 2) {
-            var currentq = 0;
-            var total = 0;
-            var orderquery = "iii";
+       
+        if (choice1 === 3) {
+
 
             connection.connect((error) => {
                 if (error) throw error
 
-                connection.query("select stock_quantity from products where product_name ='" + querty0 + "'", (error, response) => {
+                connection.query(querty0, (error, response) => {
                     if (error) throw error
-                    currentq = parseInt(response[0].stock_quantity)
-                    // console.log(currentq)
-                    var added2 = parseInt(added);
-                    total = currentq + added2;
-                    //  console.log(total)
 
-                    orderquery = " update products set stock_quantity =" + total + " where product_name = '" + querty0 + "';"
-                    datasetter(orderquery)
-                    connection.end()
-                })
-            })
 
-        }
-        if (choice1 === 3) {
-            
-      
-            connection2.connect((error) => {
-                if (error) throw error
-    
-                connection2.query(querty0, (error, response) => {
-                    if (error) throw error
-                    
-    
                 })
-    
-                connection2.end()
-    
+
+                connection.end()
+
             })
 
         }
