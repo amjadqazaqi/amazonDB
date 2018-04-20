@@ -128,9 +128,9 @@ function salepoint() {
             if (managchioce === 'update') {
 
                 prompt.start();
-                prompt.get(['ItemName', 'amjd'], function (err, result) {
+                prompt.get(['ItemName', 'Quantity'], function (err, result) {
 
-                    doit(2, result.ItemName, result.amjd)
+                    doit(2, result.ItemName, result.Quantity)
 
 
                 })
